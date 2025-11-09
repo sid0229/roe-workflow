@@ -23,7 +23,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       
-      - name: matrix-fd172b8
+      # REQUIRED IDENTIFIER
+      - name: matrix-3fd2f77
         run: echo "Building for ${{ matrix.os }} with Node.js ${{ matrix.node-version }}"
       
       - name: Setup Node.js
@@ -32,6 +33,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
       
       - name: Generate build artifact
+        shell: bash
         run: |
           echo "Build Information" > build-output.txt
           echo "==================" >> build-output.txt
@@ -39,16 +41,15 @@ jobs:
           echo "Node Version: ${{ matrix.node-version }}" >> build-output.txt
           echo "Build Time: $(date)" >> build-output.txt
           echo "Runner: ${{ runner.name }}" >> build-output.txt
-          echo "Job Index: ${{ strategy.job-index }}" >> build-output.txt
           echo "" >> build-output.txt
           echo "Node.js Info:" >> build-output.txt
           node --version >> build-output.txt
           npm --version >> build-output.txt
-        shell: bash
+          test -s build-output.txt  # ensure non-empty
       
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: build-fd172b8-${{ matrix.os }}-node${{ matrix.node-version }}
+          name: build-3fd2f77-${{ matrix.os }}-node${{ matrix.node-version }}
           path: build-output.txt
           retention-days: 7
