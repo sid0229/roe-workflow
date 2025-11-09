@@ -1,0 +1,48 @@
+name: Matrix Build with Artifacts
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }} / py${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]   # ≥3 variants
+        python-version: ['3.9']                             # keep one dimension simple
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # REQUIRED IDENTIFIER STEP
+      - name: matrix-3fd2f77
+        run: echo "Running on ${{ matrix.os }} with Python ${{ matrix.python-version }}"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Generate build artifact (non-empty)
+        shell: bash
+        run: |
+          echo "Build output for ${{ matrix.os }} / py${{ matrix.python-version }}" > build.txt
+          python - <<'PY'
+print("hello from python")
+PY
+          echo "Timestamp: $(date)" >> build.txt
+          echo "Runner: ${{ runner.name }}" >> build.txt
+          echo "OS: ${{ matrix.os }}" >> build.txt
+          echo "Py: ${{ matrix.python-version }}" >> build.txt
+          test -s build.txt  # ensure non-empty
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          # REQUIRED PREFIX: build-3fd2f77-<variant>
+          name: build-3fd2f77-${{ matrix.os }}-py${{ matrix.python-version }}
+          path: build.txt
